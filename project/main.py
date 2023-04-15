@@ -9,8 +9,8 @@ from bilstm.bilstm_train import bilstm_train
 from bilstm.bilstm_test import bilstm_test
 
 # BiGRU
-from model_2 import train_model_2, test_model_2
-from model_3 import train_model_3, test_model_3
+from bigru.bigru_train import bigru_train
+from bigru.bigru_test import bigru_test
 
 # Define the available models
 models = {
