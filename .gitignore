@@ -130,3 +130,4 @@ dmypy.json
 
 .DS_Store
 snli_1.0/
+glove.6B/
