@@ -131,3 +131,8 @@ dmypy.json
 .DS_Store
 snli_1.0/
 glove.6B/
+project/model/bert/bert-nli.pt
+project/model/bert/snli_1.0_train.csv
+project/model/bilstm/BiLSTM.h5
+project/glove.6B/glove.6B.300d.txt
+project/snli_1.0/snli_1.0_train.txt
