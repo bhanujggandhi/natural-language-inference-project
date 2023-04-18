@@ -3,23 +3,23 @@
 # ==================
 
 import pickle
-import tensorflow
 
 import numpy as np
 from sklearn.metrics import classification_report
-from tensorflow.keras.models import load_model
+from tensorflow.keras.saving import load_model
 
 
 def bigru_test():
     # ==================
     # Load Data
     # ==================
-    with open("model/bigru/tokenizer.pickle", "rb") as f:
+    with open("model/bigru/snli/tokenizer.pickle", "rb") as f:
         tokenizer = pickle.load(f)
 
-    with open("model/bigru/test_data.pickle", "rb") as f:
+    with open("model/bigru/snli/test_data.pickle", "rb") as f:
         test_data = pickle.load(f)
 
+    print(test_data[0][0])
     # ==================
     # Load model
     # ==================

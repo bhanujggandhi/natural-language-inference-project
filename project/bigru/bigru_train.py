@@ -10,37 +10,41 @@ import numpy as np
 import pandas as pd
 import unidecode
 from bs4 import BeautifulSoup
-from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
-from keras.layers import (
-    GRU,
-    BatchNormalization,
-    Bidirectional,
-    Dense,
-    Dropout,
-    Embedding,
-    Input,
-    TimeDistributed,
-    concatenate,
-)
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.layers import (GRU, BatchNormalization, Bidirectional, Dense,
+                          Dropout, Embedding, Input, concatenate)
 from keras.preprocessing.text import Tokenizer
 from keras.utils import pad_sequences, to_categorical
 from keras.utils.vis_utils import plot_model
 from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.models import Model, load_model
-from tensorflow.keras.optimizers import Adam, RMSprop
+from tensorflow.keras.optimizers.legacy import RMSprop
 from tensorflow.keras.regularizers import l2
-from word2number import w2n
 
 
 def bigru_train():
     # ========================
     # Load dataset
     # ========================
-    train_df = pd.read_csv("snli_1.0/snli_1.0_train.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
-    val_df = pd.read_csv("snli_1.0/snli_1.0_dev.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
-    test_df = pd.read_csv("snli_1.0/snli_1.0_test.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
+    train_df = pd.read_csv(
+        "snli_1.0/snli_1.0_train.txt",
+        delimiter="\t",
+        encoding="utf-8",
+        on_bad_lines="skip",
+    )
+    val_df = pd.read_csv(
+        "snli_1.0/snli_1.0_dev.txt",
+        delimiter="\t",
+        encoding="utf-8",
+        on_bad_lines="skip",
+    )
+    test_df = pd.read_csv(
+        "snli_1.0/snli_1.0_test.txt",
+        delimiter="\t",
+        encoding="utf-8",
+        on_bad_lines="skip",
+    )
 
     train_df.drop(
         columns=[
@@ -126,8 +130,12 @@ def bigru_train():
         return sent
 
     # Train set
-    train_df["sentence1"] = train_df["sentence1"].apply(lambda x: preprocess_sentence(x))
-    train_df["sentence2"] = train_df["sentence2"].apply(lambda x: preprocess_sentence(x))
+    train_df["sentence1"] = train_df["sentence1"].apply(
+        lambda x: preprocess_sentence(x)
+    )
+    train_df["sentence2"] = train_df["sentence2"].apply(
+        lambda x: preprocess_sentence(x)
+    )
 
     # Test set
     test_df["sentence1"] = test_df["sentence1"].apply(lambda x: preprocess_sentence(x))
@@ -136,7 +144,6 @@ def bigru_train():
     # Encode the labels
     label_encoder = LabelEncoder()
     label_encoder.fit(train_df["gold_label"])
-    num_classes = len(label_encoder.classes_)
 
     y_train = label_encoder.transform(train_df["gold_label"])
     y_test = label_encoder.transform(test_df["gold_label"])
@@ -147,7 +154,9 @@ def bigru_train():
     test_sent1 = test_df["sentence1"].to_numpy()
     test_sent2 = test_df["sentence2"].to_numpy()
 
-    train_corpus = [train_sent1[ind] + " " + train_sent2[ind] for ind in range(len(y_train))]
+    train_corpus = [
+        train_sent1[ind] + " " + train_sent2[ind] for ind in range(len(y_train))
+    ]
 
     embedding_dict = {}
 
@@ -170,8 +179,14 @@ def bigru_train():
         if embedding_vector is not None:
             embed_matrix[ind] = embedding_vector
 
-    sequence = lambda sentence: pad_sequences(tokenizer.texts_to_sequences(sentence), maxlen=42)
-    process = lambda item: (sequence(item[0]), sequence(item[1]), to_categorical(item[2]))
+    sequence = lambda sentence: pad_sequences(
+        tokenizer.texts_to_sequences(sentence), maxlen=42
+    )
+    process = lambda item: (
+        sequence(item[0]),
+        sequence(item[1]),
+        to_categorical(item[2]),
+    )
 
     train_process_data = [train_sent1, train_sent2, y_train]
     test_process_data = [test_sent1, test_sent2, y_test]
@@ -194,7 +209,7 @@ def bigru_train():
         output_dim=embed_matrix.shape[1],
         weights=[embed_matrix],
         input_length=42,
-        trainable=False,
+        trainable=True,
     )
 
     # BiGRU Declaration
@@ -221,17 +236,23 @@ def bigru_train():
     train_input = Dropout(0.2)(train_input)
 
     # Dense Layer1 + Dropout + Normalization
-    train_input = Dense(2 * 300, activation="relu", kernel_regularizer=l2(4e-6))(train_input)
+    train_input = Dense(2 * 300, activation="relu", kernel_regularizer=l2(4e-6))(
+        train_input
+    )
     train_input = Dropout(0.2)(train_input)
     train_input = BatchNormalization()(train_input)
 
     # Dense Layer1 + Dropout + Normalization
-    train_input = Dense(2 * 300, activation="relu", kernel_regularizer=l2(4e-6))(train_input)
+    train_input = Dense(2 * 300, activation="relu", kernel_regularizer=l2(4e-6))(
+        train_input
+    )
     train_input = Dropout(0.2)(train_input)
     train_input = BatchNormalization()(train_input)
 
     # Dense Layer1 + Dropout + Normalization
-    train_input = Dense(2 * 300, activation="relu", kernel_regularizer=l2(4e-6))(train_input)
+    train_input = Dense(2 * 300, activation="relu", kernel_regularizer=l2(4e-6))(
+        train_input
+    )
     train_input = Dropout(0.2)(train_input)
     train_input = BatchNormalization()(train_input)
 
@@ -240,32 +261,36 @@ def bigru_train():
 
     model = Model(inputs=[premise_input, hypothesis_input], outputs=prediction)
 
-    optimizer = Adam(learning_rate=0.01)
-    model.compile(optimizer=optimizer, loss="categorical_crossentropy", metrics=["accuracy"])
+    optimizer = RMSprop(learning_rate=0.01, rho=0.9, epsilon=1e-08)
+    model.compile(
+        optimizer=optimizer, loss="categorical_crossentropy", metrics=["accuracy"]
+    )
 
     print(model.summary())
 
-    plot_model(
-        model,
-        to_file="model/bigru/bi_gru_model.png",
-        show_shapes=False,
-        show_dtype=False,
-        show_layer_names=True,
-        rankdir="TB",
-        expand_nested=False,
-        dpi=96,
-        layer_range=None,
-        show_layer_activations=False,
-    )
+    # plot_model(
+    #     model,
+    #     to_file="model/bigru/bi_gru_model.png",
+    #     show_shapes=False,
+    #     show_dtype=False,
+    #     show_layer_names=True,
+    #     rankdir="TB",
+    #     expand_nested=False,
+    #     dpi=200,
+    #     layer_range=None,
+    #     show_layer_activations=False,
+    # )
 
     _, tmpfn = tempfile.mkstemp()
-    model_checkpoint = ModelCheckpoint(tmpfn, save_best_only=True, save_weights_only=True)
+    model_checkpoint = ModelCheckpoint(
+        tmpfn, save_best_only=True, save_weights_only=True
+    )
     early_stopping = EarlyStopping(monitor="val_loss", patience=4)
 
     callbacks = [early_stopping, model_checkpoint]
 
     print("Training model")
-    history = model.fit(
+    model.fit(
         x=[training_data[0], training_data[1]],
         y=training_data[2],
         batch_size=512,

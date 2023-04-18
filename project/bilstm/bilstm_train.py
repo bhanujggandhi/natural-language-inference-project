@@ -246,18 +246,18 @@ def bilstm_train():
 
     print(model.summary())
 
-    plot_model(
-        model,
-        to_file="model/bilstm/bi_lstm_model.png",
-        show_shapes=False,
-        show_dtype=False,
-        show_layer_names=True,
-        rankdir="TB",
-        expand_nested=False,
-        dpi=96,
-        layer_range=None,
-        show_layer_activations=False,
-    )
+    # plot_model(
+    #     model,
+    #     to_file="model/bilstm/bi_lstm_model.png",
+    #     show_shapes=False,
+    #     show_dtype=False,
+    #     show_layer_names=True,
+    #     rankdir="TB",
+    #     expand_nested=False,
+    #     dpi=96,
+    #     layer_range=None,
+    #     show_layer_activations=False,
+    # )
 
     _, tmpfn = tempfile.mkstemp()
     model_checkpoint = ModelCheckpoint(tmpfn, save_best_only=True, save_weights_only=True)
