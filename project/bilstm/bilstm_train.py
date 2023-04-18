@@ -39,9 +39,9 @@ def bilstm_train():
     # ========================
     # Load dataset
     # ========================
-    train_df = pd.read_csv("../snli_1.0/snli_1.0_train.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
-    val_df = pd.read_csv("../snli_1.0/snli_1.0_dev.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
-    test_df = pd.read_csv("../snli_1.0/snli_1.0_test.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
+    train_df = pd.read_csv("snli_1.0/snli_1.0_train.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
+    val_df = pd.read_csv("snli_1.0/snli_1.0_dev.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
+    test_df = pd.read_csv("snli_1.0/snli_1.0_test.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
 
     train_df.drop(
         columns=[
@@ -152,7 +152,7 @@ def bilstm_train():
 
     embedding_dict = {}
 
-    with open("../glove.6B/glove.6B.300d.txt", "r") as f:
+    with open("glove.6B/glove.6B.300d.txt", "r") as f:
         for line in f:
             line_list = line.split()
             word = line_list[0]
@@ -179,10 +179,10 @@ def bilstm_train():
     training_data = process(train_process_data)
     test_data = process(test_process_data)
 
-    with open("../model/bilstm/test_data.txt", "wb") as f:
+    with open("model/bilstm/test_data.txt", "wb") as f:
         pickle.dump(test_data, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    with open("../model/bilstm/tokenizer.pickle", "wb") as f:
+    with open("model/bilstm/tokenizer.pickle", "wb") as f:
         pickle.dump(tokenizer, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     # ========================
@@ -248,7 +248,7 @@ def bilstm_train():
 
     plot_model(
         model,
-        to_file="../model/bilstm/bi_lstm_model.png",
+        to_file="model/bilstm/bi_lstm_model.png",
         show_shapes=False,
         show_dtype=False,
         show_layer_names=True,
@@ -276,13 +276,13 @@ def bilstm_train():
     )
 
     model.load_weights(tmpfn)
-    model.save("../model/bilstm/BiLSTM.h5")
+    model.save("model/bilstm/BiLSTM.h5")
 
     # =====================
     # Load Model
     # =====================
 
-    model2 = load_model("../model/bilstm/BiLSTM.h5")
+    model2 = load_model("model/bilstm/BiLSTM.h5")
     Y_pred = model2.predict([test_data[0], test_data[1]])
     Y_pred = np.argmax(Y_pred, axis=1)
     Y_test = np.argmax(test_data[2], axis=1)

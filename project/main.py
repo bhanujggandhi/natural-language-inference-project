@@ -12,11 +12,16 @@ from bilstm.bilstm_test import bilstm_test
 from bigru.bigru_train import bigru_train
 from bigru.bigru_test import bigru_test
 
+# BiGRU
+from bert.bert_train import bert_train
+from bert.bert_test import bert_test
+
 # Define the available models
 models = {
-    "logistic_regression": {"train": train_model_1, "test": test_model_1},
-    "bilstm": {"train": train_model_2, "test": test_model_2},
-    "bigru": {"train": train_model_3, "test": test_model_3},
+    "lr": {"train": lr_train, "test": lr_test},
+    "bilstm": {"train": bilstm_train, "test": bilstm_test},
+    "bigru": {"train": bigru_train, "test": bigru_test},
+    "bert": {"train": bert_train, "test": bert_test},
 }
 
 # Set up the CLI

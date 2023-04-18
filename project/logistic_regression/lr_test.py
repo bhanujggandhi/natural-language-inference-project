@@ -3,6 +3,7 @@
 # ===============
 
 
+import os
 import pickle
 
 import numpy as np
@@ -15,7 +16,7 @@ def lr_test():
     # ===============
     # Read file
     # ===============
-    test_df = pd.read_csv("../snli_1.0/snli_1.0_test.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
+    test_df = pd.read_csv("snli_1.0/snli_1.0_test.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
 
     test_df.drop(
         columns=[
@@ -42,10 +43,10 @@ def lr_test():
     # Vectorize data
     # ===============
 
-    with open("../model/logistic_regression/vectorizer.pickle", "rb") as f:
+    with open("model/logistic_regression/vectorizer.pickle", "rb") as f:
         tfidf_vectorizer = pickle.load(f)
 
-    with open("../model/logistic_regression/label_encoder.pickle", "rb") as f:
+    with open("model/logistic_regression/label_encoder.pickle", "rb") as f:
         label_encoder = pickle.load(f)
 
     X_test1 = tfidf_vectorizer.transform(test_df["sentence1"])
@@ -56,7 +57,7 @@ def lr_test():
     # ===============
     # Load Model
     # ===============
-    with open("../model/logistic_regression/best_lr.pickle", "rb") as f:
+    with open("model/logistic_regression/best_lr.pickle", "rb") as f:
         grid_search = pickle.load(f)
 
     y_pred = grid_search.predict(X_test)

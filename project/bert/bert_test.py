@@ -43,79 +43,6 @@ def categorical_accuracy(y_pred, y_test):
     return correct.sum() / len(y_test)
 
 
-# ===============
-# Load Data
-# ===============
-with open("../model/bert/tokenizer.pkl", "rb") as f:
-    tokenizer = pickle.load(f)
-
-text_field = data.Field(
-    batch_first=True,
-    use_vocab=False,
-    tokenize=trim_sentence,
-    preprocessing=tokenizer.convert_tokens_to_ids,
-    pad_token=tokenizer.pad_token_id,
-    unk_token=tokenizer.unk_token_id,
-)
-
-label_field = data.LabelField()
-
-attention_mask_field = data.Field(
-    batch_first=True,
-    use_vocab=False,
-    tokenize=trim_sentence,
-    preprocessing=word_to_idx,
-    pad_token=tokenizer.pad_token_id,
-)
-
-
-token_type_field = data.Field(
-    batch_first=True, use_vocab=False, tokenize=trim_sentence, preprocessing=word_to_idx, pad_token=1
-)
-
-fields = [
-    ("label", label_field),
-    ("sequence", text_field),
-    ("attention_mask", attention_mask_field),
-    ("token_type", token_type_field),
-]
-
-train_data, valid_data, test_data = data.TabularDataset.splits(
-    path="../model/bert",
-    train="snli_1.0_train.csv",
-    validation="snli_1.0_dev.csv",
-    test="snli_1.0_test.csv",
-    format="csv",
-    fields=fields,
-    skip_header=True,
-)
-
-# ===============
-# Prepare Data
-# ===============
-
-label_field.build_vocab(train_data)
-
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-else:
-    device = torch.device("cpu")
-
-train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(
-    (train_data, valid_data, test_data),
-    batch_size=BATCH_SIZE,
-    sort_key=lambda x: len(x.sequence),
-    sort_within_batch=False,
-    device=device,
-)
-
-# ===============
-# Model Deifinition
-# ===============
-
-bert_model = BertModel.from_pretrained("bert-base-uncased")
-
-
 class BERTMODEL(nn.Module):
     def __init__(self, bert, HIDDEN_DIM, OUTPUT_DIM):
         super().__init__()
@@ -128,11 +55,6 @@ class BERTMODEL(nn.Module):
         embedded = self.bert(input_ids=sequence, attention_mask=attention_mask, token_type_ids=token_type)[1]
         output = self.out(embedded)
         return output
-
-
-model = BERTMODEL(bert_model, HIDDEN_DIM, OUTPUT_DIM).to(device)
-
-criterion = nn.CrossEntropyLoss().to(device)
 
 
 true_labels = []
@@ -159,13 +81,89 @@ def evaluate(model, iterator, criterion):
     return epoch_loss / len(iterator), epoch_acc / len(iterator)
 
 
-# ===============
-# Test Model
-# ===============
+def bert_test():
+    # ===============
+    # Load Data
+    # ===============
+    with open("model/bert/tokenizer.pkl", "rb") as f:
+        tokenizer = pickle.load(f)
 
-model.load_state_dict(torch.load("../model/bert/bert-nli.pt", map_location=device))
-test_loss, test_acc = evaluate(model, test_iterator, criterion)
-print(f"Test Loss: {test_loss:.3f} |  Test Acc: {test_acc*100:.2f}%")
+    text_field = data.Field(
+        batch_first=True,
+        use_vocab=False,
+        tokenize=trim_sentence,
+        preprocessing=tokenizer.convert_tokens_to_ids,
+        pad_token=tokenizer.pad_token_id,
+        unk_token=tokenizer.unk_token_id,
+    )
 
-target_names = label_field.vocab.itos
-print(classification_report(true_labels, predicted_labels, target_names=target_names))
+    label_field = data.LabelField()
+
+    attention_mask_field = data.Field(
+        batch_first=True,
+        use_vocab=False,
+        tokenize=trim_sentence,
+        preprocessing=word_to_idx,
+        pad_token=tokenizer.pad_token_id,
+    )
+
+    token_type_field = data.Field(
+        batch_first=True, use_vocab=False, tokenize=trim_sentence, preprocessing=word_to_idx, pad_token=1
+    )
+
+    fields = [
+        ("label", label_field),
+        ("sequence", text_field),
+        ("attention_mask", attention_mask_field),
+        ("token_type", token_type_field),
+    ]
+
+    train_data, valid_data, test_data = data.TabularDataset.splits(
+        path="model/bert",
+        train="snli_1.0_train.csv",
+        validation="snli_1.0_dev.csv",
+        test="snli_1.0_test.csv",
+        format="csv",
+        fields=fields,
+        skip_header=True,
+    )
+
+    # ===============
+    # Prepare Data
+    # ===============
+
+    label_field.build_vocab(train_data)
+
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+
+    train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(
+        (train_data, valid_data, test_data),
+        batch_size=BATCH_SIZE,
+        sort_key=lambda x: len(x.sequence),
+        sort_within_batch=False,
+        device=device,
+    )
+
+    # ===============
+    # Model Deifinition
+    # ===============
+
+    bert_model = BertModel.from_pretrained("bert-base-uncased")
+
+    model = BERTMODEL(bert_model, HIDDEN_DIM, OUTPUT_DIM).to(device)
+
+    criterion = nn.CrossEntropyLoss().to(device)
+
+    # ===============
+    # Test Model
+    # ===============
+
+    model.load_state_dict(torch.load("model/bert/bert-nli.pt", map_location=device))
+    test_loss, test_acc = evaluate(model, test_iterator, criterion)
+    print(f"Test Loss: {test_loss:.3f} |  Test Acc: {test_acc*100:.2f}%")
+
+    target_names = label_field.vocab.itos
+    print(classification_report(true_labels, predicted_labels, target_names=target_names))

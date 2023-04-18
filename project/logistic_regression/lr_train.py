@@ -24,8 +24,8 @@ def lr_train():
     # ===============
     # Read file
     # ===============
-    train_df = pd.read_csv("../snli_1.0/snli_1.0_train.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
-    test_df = pd.read_csv("../snli_1.0/snli_1.0_test.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
+    train_df = pd.read_csv("snli_1.0/snli_1.0_train.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
+    test_df = pd.read_csv("snli_1.0/snli_1.0_test.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
 
     train_df.drop(
         columns=[
@@ -76,7 +76,7 @@ def lr_train():
     tfidf_vectorizer = TfidfVectorizer(stop_words="english")
     corpus = tfidf_vectorizer.fit_transform(train_df["sentence1"] + " " + train_df["sentence2"])
 
-    with open("../model/logistic_regression/vectorizer.pickle", "wb") as f:
+    with open("model/logistic_regression/vectorizer.pickle", "wb") as f:
         pickle.dump(tfidf_vectorizer, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     X_train1 = tfidf_vectorizer.transform(train_df["sentence1"])
@@ -88,7 +88,7 @@ def lr_train():
     num_classes = len(label_encoder.classes_)
     y_train = label_encoder.transform(train_df["gold_label"])
 
-    with open("../model/logistic_regression/label_encoder.pickle", "wb") as f:
+    with open("model/logistic_regression/label_encoder.pickle", "wb") as f:
         pickle.dump(label_encoder, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     X_test1 = tfidf_vectorizer.transform(test_df["sentence1"])
@@ -110,7 +110,7 @@ def lr_train():
 
     y_pred = grid_search.predict(X_test)
 
-    with open("../model/logistic_regression/best_lr.pickle", "wb") as f:
+    with open("model/logistic_regression/best_lr.pickle", "wb") as f:
         pickle.dump(grid_search, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     print(grid_search.best_params_)
