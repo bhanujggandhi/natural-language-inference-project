@@ -3,12 +3,13 @@
 # ===============
 import pickle
 
+import matplotlib.pyplot as plt
+import pandas as pd
 import torch
 import torch.nn as nn
-from sklearn.metrics import classification_report
+from sklearn.metrics import ConfusionMatrixDisplay, classification_report, confusion_matrix
 from torchtext.legacy import data
 from transformers import BertModel
-
 
 # ===============
 # Hyperparameters
@@ -85,7 +86,7 @@ def bert_test():
     # ===============
     # Load Data
     # ===============
-    with open("model/bert/tokenizer.pkl", "rb") as f:
+    with open("model/bert/snli/tokenizer.pkl", "rb") as f:
         tokenizer = pickle.load(f)
 
     text_field = data.Field(
@@ -119,7 +120,7 @@ def bert_test():
     ]
 
     train_data, valid_data, test_data = data.TabularDataset.splits(
-        path="model/bert",
+        path="model/bert/snli",
         train="snli_1.0_train.csv",
         validation="snli_1.0_dev.csv",
         test="snli_1.0_test.csv",
@@ -133,6 +134,8 @@ def bert_test():
     # ===============
 
     label_field.build_vocab(train_data)
+    label_field.vocab.itos.append("hidden")
+    label_field.vocab.stoi["hidden"] = 3
 
     if torch.cuda.is_available():
         device = torch.device("cuda")
@@ -142,9 +145,11 @@ def bert_test():
     train_iterator, valid_iterator, test_iterator = data.BucketIterator.splits(
         (train_data, valid_data, test_data),
         batch_size=BATCH_SIZE,
-        sort_key=lambda x: len(x.sequence),
+        sort=False,
+        # sort_key=lambda x: len(x.sequence),
         sort_within_batch=False,
         device=device,
+        shuffle=False,
     )
 
     # ===============
@@ -160,10 +165,32 @@ def bert_test():
     # ===============
     # Test Model
     # ===============
+    print(label_field.vocab.itos)
+    print(label_field.vocab.stoi)
 
-    model.load_state_dict(torch.load("model/bert/bert-nli.pt", map_location=device))
+    model.load_state_dict(torch.load("model/bert/snli/bert-nli.pt", map_location=device))
     test_loss, test_acc = evaluate(model, test_iterator, criterion)
     print(f"Test Loss: {test_loss:.3f} |  Test Acc: {test_acc*100:.2f}%")
 
-    target_names = label_field.vocab.itos
-    print(classification_report(true_labels, predicted_labels, target_names=target_names))
+    print(classification_report(true_labels, predicted_labels))
+
+    cm = confusion_matrix(true_labels, predicted_labels)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+
+    disp.plot()
+    plt.show()
+
+    # print(true_labels)
+    # print("=" * 1000)
+    # print(predicted_labels)
+
+    # output_file = open("./output.txt", "w")
+    # output_file.write("gold_label\n")
+
+    # for i in predicted_labels:
+    #     output_file.write(label_field.vocab.itos[i] + "\n")
+
+    # output_file.close()
+
+    # y_pred = pd.read_csv("./output.txt", delimiter="\t", encoding="utf-8", on_bad_lines="skip")
+    # y_pred.to_csv("output.csv", header=True, index=True, index_label="pairID")

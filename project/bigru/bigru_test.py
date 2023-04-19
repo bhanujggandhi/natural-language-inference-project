@@ -4,8 +4,9 @@
 
 import pickle
 
+import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import classification_report
+from sklearn.metrics import ConfusionMatrixDisplay, classification_report, confusion_matrix
 from tensorflow.keras.saving import load_model
 
 
@@ -32,6 +33,12 @@ def bigru_test():
     y_pred = np.argmax(y_pred, axis=1)
     y_test = np.argmax(test_data[2], axis=1)
     print(classification_report(y_pred, y_test))
+
+    cm = confusion_matrix(y_test, y_pred)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+
+    disp.plot()
+    plt.show()
 
 
 if __name__ == "__main__":

@@ -6,10 +6,11 @@
 import os
 import pickle
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import scipy
-from sklearn.metrics import classification_report
+from sklearn.metrics import ConfusionMatrixDisplay, classification_report, confusion_matrix
 
 
 def lr_test():
@@ -49,6 +50,8 @@ def lr_test():
     with open("model/logistic_regression/label_encoder.pickle", "rb") as f:
         label_encoder = pickle.load(f)
 
+    print(label_encoder.classes_)
+
     X_test1 = tfidf_vectorizer.transform(test_df["sentence1"])
     X_test2 = tfidf_vectorizer.transform(test_df["sentence2"])
     X_test = scipy.sparse.hstack((X_test1, X_test2))
@@ -63,6 +66,11 @@ def lr_test():
     y_pred = grid_search.predict(X_test)
 
     print(classification_report(y_test, y_pred))
+    cm = confusion_matrix(y_test, y_pred)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+
+    disp.plot()
+    plt.show()
 
 
 if __name__ == "__main__":
