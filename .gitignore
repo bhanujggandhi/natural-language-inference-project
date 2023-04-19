@@ -137,6 +137,7 @@ project/model/bert/snli/bert-nli.pt
 project/model/bert/snli/snli_1.0_train.csv
 project/model/bert/multi_nli/train_data_mnli.csv
 project/model/bert/multi_nli/bert-nli.pt
+project/multinli_0.9/multinli_0.9_train.txt
 project/model/bilstm/snli/BiLSTM.h5
 project/model/bilstm/multi_nli/LSTM_MNLI.h5
 project/model/bigru/multi_nli/GRU_MNLI.h5
