@@ -14,16 +14,16 @@ def bigru_test():
     # ==================
     # Load Data
     # ==================
-    with open("model/bigru/multi_nli/tokenizer_mnli.pickle", "rb") as f:
+    with open("model/bigru/multi_nli/tokenizer.pickle", "rb") as f:
         tokenizer = pickle.load(f)
 
-    with open("model/bigru/multi_nli/test_data_mnli.pickle", "rb") as f:
+    with open("model/bigru/multi_nli/test_data.txt", "rb") as f:
         test_data = pickle.load(f)
 
     # ==================
     # Load model
     # ==================
-    model = load_model("model/bigru/multi_nli/GRU_MNLI.h5")
+    model = load_model("model/bigru/multi_nli/BiGRU.h5")
 
     # ==================
     # Predict

@@ -14,16 +14,16 @@ def bilstm_test():
     # ==================
     # Load Data
     # ==================
-    with open("model/bilstm/multi_nli/tokenizer_mnli.pickle", "rb") as f:
+    with open("model/bilstm/multi_nli/tokenizer.pickle", "rb") as f:
         tokenizer = pickle.load(f)
 
-    with open("model/bilstm/multi_nli/test_data_mnli.pickle", "rb") as f:
+    with open("model/bilstm/multi_nli/test_data.txt", "rb") as f:
         test_data = pickle.load(f)
 
     # ==================
     # Load model
     # ==================
-    model = load_model("model/bilstm/multi_nli/LSTM_MNLI.h5")
+    model = load_model("model/bilstm/multi_nli/BiLSTM.h5")
 
     # ==================
     # Predict
