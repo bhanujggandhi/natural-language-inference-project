@@ -24,7 +24,7 @@ def bigru_test():
     # ==================
     # Load model
     # ==================
-    model = load_model("model/bigru/BiGRU.h5")
+    model = load_model("model/bigru/snli/BiGRU.h5")
 
     # ==================
     # Predict

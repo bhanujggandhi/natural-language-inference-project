@@ -5,8 +5,10 @@ from bert.bert_test import bert_test
 from bert.bert_train import bert_train
 
 # BiGRU
-from bigru.bigru_test import bigru_test
-from bigru.bigru_train import bigru_train
+from bigru.multi_nli.bigru_test import bigru_test as bigru_test_multi_nli
+from bigru.multi_nli.bigru_train import bigru_train as bigru_train_multi_nli
+from bigru.snli.bigru_test import bigru_test as bigru_test_snli
+from bigru.snli.bigru_train import bigru_train as bigru_train_snli
 
 # BiLSTM
 from bilstm.multi_nli.bilstm_test import bilstm_test as bilstm_test_multinli
@@ -24,12 +26,12 @@ from logistic_regression.snli.lr_train import lr_train as lr_train_snli
 models = {
     "lr_snli": {"train": lr_train_snli, "test": lr_test_snli},
     "bilstm_snli": {"train": bilstm_train_snli, "test": bilstm_test_snli},
-    "bigru_snli": {"train": bigru_train, "test": bigru_test},
+    "bigru_snli": {"train": bigru_train_snli, "test": bigru_test_snli},
     "elmo_snli": {"train": print, "test": print},
     "bert_snli": {"train": bert_train, "test": bert_test},
     "lr_multi_nli": {"train": lr_train_multinli, "test": lr_test_multinli},
     "bilstm_multi_nli": {"train": bilstm_train_multinli, "test": bilstm_test_multinli},
-    "bigru_multi_nli": {"train": bigru_train, "test": bigru_test},
+    "bigru_multi_nli": {"train": bigru_train_multi_nli, "test": bigru_test_multi_nli},
     "elmo_multi_nli": {"train": print, "test": print},
     "bert_multi_nli": {"train": bert_train, "test": bert_test},
 }
