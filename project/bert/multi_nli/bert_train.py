@@ -31,61 +31,16 @@ def bert_train():
     # =====================
     # Load Datasets
     # =====================
-    df_train = pd.read_csv("snli_1.0/snli_1.0_train.txt", sep="\t", on_bad_lines="skip")
-    df_dev = pd.read_csv("snli_1.0/snli_1.0_dev.txt", sep="\t", on_bad_lines="skip")
-    df_test = pd.read_csv("snli_1.0/snli_1.0_test.txt", sep="\t", on_bad_lines="skip")
+    train_df = pd.read_csv("snli_1.0/snli_1.0_train.txt", sep="\t", on_bad_lines="skip")
+    dev_df = pd.read_csv("snli_1.0/snli_1.0_dev.txt", sep="\t", on_bad_lines="skip")
+    test_df = pd.read_csv("snli_1.0/snli_1.0_test.txt", sep="\t", on_bad_lines="skip")
 
     # =====================
     # Preprocess Data
     # =====================
-    df_train.drop(
-        columns=[
-            "sentence1_binary_parse",
-            "sentence2_binary_parse",
-            "sentence1_parse",
-            "sentence2_parse",
-            "captionID",
-            "pairID",
-            "label1",
-            "label2",
-            "label3",
-            "label4",
-            "label5",
-        ],
-        inplace=True,
-    )
-    df_dev.drop(
-        columns=[
-            "sentence1_binary_parse",
-            "sentence2_binary_parse",
-            "sentence1_parse",
-            "sentence2_parse",
-            "captionID",
-            "pairID",
-            "label1",
-            "label2",
-            "label3",
-            "label4",
-            "label5",
-        ],
-        inplace=True,
-    )
-    df_test.drop(
-        columns=[
-            "sentence1_binary_parse",
-            "sentence2_binary_parse",
-            "sentence1_parse",
-            "sentence2_parse",
-            "captionID",
-            "pairID",
-            "label1",
-            "label2",
-            "label3",
-            "label4",
-            "label5",
-        ],
-        inplace=True,
-    )
+    train_df = train_df[["gold_label", "sentence1", "sentence2"]]
+    dev_df = dev_df[["gold_label", "sentence1", "sentence2"]]
+    test_df = test_df[["gold_label", "sentence1", "sentence2"]]
 
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
@@ -196,8 +151,7 @@ def bert_train():
         epoch_acc = 0
         model.train()
         for batch in iterator:
-            optimizer.zero_grad()  # clear gradients first
-            torch.cuda.empty_cache()  # releases all unoccupied cached memory
+            optimizer.zero_grad()
             sequence = batch.sequence
             attn_mask = batch.attention_mask
             token_type = batch.token_type

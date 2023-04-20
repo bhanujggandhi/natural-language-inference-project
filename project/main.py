@@ -1,8 +1,10 @@
 import argparse
 
 # Bert
-from bert.bert_test import bert_test
-from bert.bert_train import bert_train
+from bert.multi_nli.bert_test import bert_test as bert_test_multi_nli
+from bert.multi_nli.bert_train import bert_train as bert_train_multi_nli
+from bert.snli.bert_test import bert_test as bert_test_snli
+from bert.snli.bert_train import bert_train as bert_train_snli
 
 # BiGRU
 from bigru.multi_nli.bigru_test import bigru_test as bigru_test_multi_nli
@@ -28,12 +30,12 @@ models = {
     "bilstm_snli": {"train": bilstm_train_snli, "test": bilstm_test_snli},
     "bigru_snli": {"train": bigru_train_snli, "test": bigru_test_snli},
     "elmo_snli": {"train": print, "test": print},
-    "bert_snli": {"train": bert_train, "test": bert_test},
+    "bert_snli": {"train": bert_train_snli, "test": bert_test_snli},
     "lr_multi_nli": {"train": lr_train_multinli, "test": lr_test_multinli},
     "bilstm_multi_nli": {"train": bilstm_train_multinli, "test": bilstm_test_multinli},
     "bigru_multi_nli": {"train": bigru_train_multi_nli, "test": bigru_test_multi_nli},
     "elmo_multi_nli": {"train": print, "test": print},
-    "bert_multi_nli": {"train": bert_train, "test": bert_test},
+    "bert_multi_nli": {"train": bert_train_multi_nli, "test": bert_test_multi_nli},
 }
 
 # Set up the CLI

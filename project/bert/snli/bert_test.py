@@ -37,11 +37,11 @@ def trim_sentence(sentence):
     return tokens
 
 
-def categorical_accuracy(y_pred, y_test):
-    y_pred = y_pred.argmax(dim=1, keepdim=True)
-    correct = (y_pred.squeeze(1) == y_test).float()
+def categorical_accuracy(y_pred_, y_test_):
+    y_pred = y_pred_.argmax(dim=1, keepdim=True)
+    correct = (y_pred.squeeze(1) == y_test_).float()
 
-    return correct.sum() / len(y_test)
+    return correct.sum() / len(y_test_)
 
 
 class BERTMODEL(nn.Module):
@@ -58,8 +58,8 @@ class BERTMODEL(nn.Module):
         return output
 
 
-true_labels = []
-predicted_labels = []
+y_test = []
+y_pred = []
 
 
 def evaluate(model, iterator, criterion):
@@ -73,8 +73,8 @@ def evaluate(model, iterator, criterion):
             token_type = batch.token_type
             labels = batch.label
             predictions = model(sequence, attn_mask, token_type)
-            predicted_labels.extend(torch.argmax(predictions, dim=1).tolist())
-            true_labels.extend(labels.tolist())
+            y_pred.extend(torch.argmax(predictions, dim=1).tolist())
+            y_test.extend(labels.tolist())
             loss = criterion(predictions, labels)
             acc = categorical_accuracy(predictions, labels)
             epoch_loss += loss.item()
@@ -134,8 +134,8 @@ def bert_test():
     # ===============
 
     label_field.build_vocab(train_data)
-    label_field.vocab.itos.append("hidden")
-    label_field.vocab.stoi["hidden"] = 3
+    # label_field.vocab.itos.append("hidden")
+    # label_field.vocab.stoi["hidden"] = 3
 
     if torch.cuda.is_available():
         device = torch.device("cuda")
@@ -167,14 +167,13 @@ def bert_test():
     # ===============
     print(label_field.vocab.itos)
     print(label_field.vocab.stoi)
-
     model.load_state_dict(torch.load("model/bert/snli/bert-nli.pt", map_location=device))
-    test_loss, test_acc = evaluate(model, test_iterator, criterion)
+    test_loss, test_acc = evaluate(model, valid_iterator, criterion)
     print(f"Test Loss: {test_loss:.3f} |  Test Acc: {test_acc*100:.2f}%")
 
-    print(classification_report(true_labels, predicted_labels))
+    print(classification_report(y_test, y_pred))
 
-    cm = confusion_matrix(true_labels, predicted_labels)
+    cm = confusion_matrix(y_test, y_pred)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm)
 
     disp.plot()
