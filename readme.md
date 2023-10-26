@@ -123,8 +123,6 @@ $ python main.py
 
 > There is one python notebook that shows **Sentence Embedding** work that we have done using NLI datasets.
 
-[Link for the files](https://drive.google.com/drive/folders/1SOKwwFvbbDyKMlf1WFsUIY3-eevIaMua?usp=sharing)
-
 ---
 
 # Project Objective
